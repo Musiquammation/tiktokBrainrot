@@ -1,0 +1,68 @@
+import pygame
+
+from screen import *
+from game import Game
+
+game = Game()
+
+pygame.init()
+
+FPS = 30
+VIDEO_DURATION = 3
+
+CREATE_VIDEO = True
+
+if CREATE_VIDEO:
+	import moviepy.editor as mpy
+
+
+def generate_frame(t):
+	screen = pygame.Surface((WIDTH, HEIGHT))
+	screen.fill((0, 0, 0))
+	
+	game.run()
+	game.draw(screen)
+	game.frame += 1
+	return screen
+
+
+# Fonction de génération du clip en streaming pour la vidéo
+def create_video():
+	# Créer un clip vidéo avec un processus en streaming
+	def make_frame(t):
+		screen = generate_frame(t)
+		return pygame.surfarray.array3d(screen).swapaxes(0, 1)
+	
+	# Créer un clip en streaming avec MoviePy
+	clip = mpy.VideoClip(make_frame, duration=VIDEO_DURATION)
+	clip.fps = FPS
+	
+	# Sauvegarder la vidéo
+	clip.write_videofile("output_video.mp4", codec='libx264')
+
+# Si CREATE_VIDEO est True, on génère la vidéo
+if CREATE_VIDEO:
+	create_video()
+else:
+	# Si CREATE_VIDEO est False, afficher la fenêtre de jeu avec Pygame
+	screen = pygame.display.set_mode((WIDTH, HEIGHT))
+	pygame.display.set_caption("Brainrot")
+	
+	clock = pygame.time.Clock()
+	running = True
+
+	while running:
+		screen.fill((0, 0, 0))
+		
+		game.run()
+		game.draw(screen)
+		game.frame += 1
+		
+		for event in pygame.event.get():
+			if event.type == pygame.QUIT:
+				running = False
+		
+		pygame.display.flip()
+		clock.tick(FPS)
+
+	pygame.quit()

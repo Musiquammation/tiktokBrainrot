@@ -1,0 +1,2 @@
+WIDTH = 720
+HEIGHT = 1280
